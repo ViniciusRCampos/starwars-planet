@@ -7,6 +7,7 @@ export const planetsContext = createContext(defaultValue);
 
 export function StarWarsProvider({ children }) {
   const [planetsList, setPlanetsList] = useState([]);
+  const [filterByName, setfilterByName] = useState('');
 
   useEffect(() => {
     const starWarsAPI = async () => {
@@ -19,7 +20,15 @@ export function StarWarsProvider({ children }) {
     starWarsAPI();
   }, []);
 
-  const planets = useMemo(() => ({ planetsList }), [planetsList]);
+  const handleChange = ({ target }) => {
+    const { value } = target;
+    setfilterByName(value);
+  };
+
+  const planets = useMemo(
+    () => ({ planetsList, filterByName, handleChange }),
+    [planetsList, filterByName],
+  );
 
   return (
     <planetsContext.Provider value={ planets }>
