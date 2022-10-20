@@ -2,7 +2,8 @@ import React, { useContext } from 'react';
 import { planetsContext } from '../context/StarWarsProvider';
 
 export default function Filter() {
-  const { filtersByNumber, handleFilter, clickFilter } = useContext(planetsContext);
+  const { filtersByNumber, handleFilter,
+    clickFilter, columnOptions } = useContext(planetsContext);
   const { column, comparison, value } = filtersByNumber;
 
   return (
@@ -13,13 +14,7 @@ export default function Filter() {
         value={ column }
         onChange={ handleFilter }
       >
-        {[
-          'population',
-          'orbital_period',
-          'diameter',
-          'rotation_period',
-          'surface_water',
-        ].map((event) => (
+        {columnOptions.map((event) => (
           <option key={ event } value={ event }>
             {event}
           </option>
@@ -34,12 +29,13 @@ export default function Filter() {
       >
         <option value="maior que">maior que</option>
         <option value="menor que">menor que</option>
-        <option value="igual A">igual a</option>
+        <option value="igual a">igual a</option>
       </select>
 
       <input
         name="value"
         type="number"
+        min="0"
         data-testid="value-filter"
         value={ value }
         onChange={ handleFilter }

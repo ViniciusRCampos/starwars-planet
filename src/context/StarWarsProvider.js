@@ -8,15 +8,36 @@ export const planetsContext = createContext(defaultValue);
 export function StarWarsProvider({ children }) {
   const [planetsList, setPlanetsList] = useState([]);
   const [filterByName, setfilterByName] = useState('');
-  const [filtersByNumber, setfiltersByNumber] = useState({
-    column: 'population',
+  const [columnOptions, setColumnOptions] = useState(['population',
+    'orbital_period',
+    'diameter',
+    'rotation_period',
+    'surface_water']);
+
+  const INITIAL_FILTER = {
+    column: columnOptions[0],
     comparison: 'maior que',
-    value: '',
-  });
+    value: 0,
+  };
+  const [filtersByNumber, setfiltersByNumber] = useState(INITIAL_FILTER);
+  const [activeFilters, setActiveFilters] = useState([]);
 
   const handleFilter = ({ target }) => {
     const { name, value } = target;
     setfiltersByNumber((oldState) => ({ ...oldState, [name]: value }));
+  };
+
+  const newColumns = () => {
+    activeFilters.forEach((element) => setColumnOptions(columnOptions.filter(
+      (item) => item !== element.column,
+    )));
+  };
+
+  const newColumnsa = (element) => {
+    console.log('colunas', columnOptions);
+    const colunas = columnOptions.splice(columnOptions.indexOf(element), 0);
+    console.log('AAAA', colunas);
+    setColumnOptions(colunas);
   };
 
   useEffect(() => {
@@ -28,14 +49,11 @@ export function StarWarsProvider({ children }) {
       setPlanetsList(data);
     };
     starWarsAPI();
+    console.log(columnOptions);
   }, []);
 
-  const handleChange = ({ target }) => {
-    const { value } = target;
-    setfilterByName(value);
-  };
-
-  const clickFilter = () => {
+  const filtering = () => {
+    const { comparison, column, value } = filtersByNumber;
     if (comparison === 'maior que') {
       const filteredPlanets = planetsList.filter((filter) => +filter[column] > +value);
       setPlanetsList(filteredPlanets);
@@ -44,10 +62,26 @@ export function StarWarsProvider({ children }) {
       const filteredPlanets = planetsList.filter((filter) => +filter[column] < +value);
       setPlanetsList(filteredPlanets);
     }
-    if (comparison === 'igual A') {
-      const filteredPlanets = planetsList.filter((filter) => +filter[column] === +value);
+    if (comparison === 'igual a') {
+      const filteredPlanets = planetsList.filter(
+        (filter) => +filter[column] === +value,
+      );
       setPlanetsList(filteredPlanets);
     }
+  };
+
+  useEffect(() => {
+    filtering();
+    newColumns();
+  }, [activeFilters]);
+
+  const handleChange = ({ target }) => {
+    const { value } = target;
+    setfilterByName(value);
+  };
+
+  const clickFilter = () => {
+    setActiveFilters([...activeFilters, filtersByNumber]);
   };
 
   const planets = useMemo(
@@ -56,8 +90,10 @@ export function StarWarsProvider({ children }) {
       handleChange,
       filtersByNumber,
       handleFilter,
-      clickFilter }),
-    [planetsList, filterByName, filtersByNumber],
+      clickFilter,
+      activeFilters,
+      columnOptions }),
+    [planetsList, filterByName, filtersByNumber, activeFilters, columnOptions],
   );
 
   return (
