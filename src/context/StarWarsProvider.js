@@ -8,6 +8,16 @@ export const planetsContext = createContext(defaultValue);
 export function StarWarsProvider({ children }) {
   const [planetsList, setPlanetsList] = useState([]);
   const [filterByName, setfilterByName] = useState('');
+  const [filtersByNumber, setfiltersByNumber] = useState({
+    column: 'population',
+    comparison: 'maior que',
+    value: '',
+  });
+
+  const handleFilter = ({ target }) => {
+    const { name, value } = target;
+    setfiltersByNumber((oldState) => ({ ...oldState, [name]: value }));
+  };
 
   useEffect(() => {
     const starWarsAPI = async () => {
@@ -25,9 +35,29 @@ export function StarWarsProvider({ children }) {
     setfilterByName(value);
   };
 
+  const clickFilter = () => {
+    if (comparison === 'maior que') {
+      const filteredPlanets = planetsList.filter((filter) => +filter[column] > +value);
+      setPlanetsList(filteredPlanets);
+    }
+    if (comparison === 'menor que') {
+      const filteredPlanets = planetsList.filter((filter) => +filter[column] < +value);
+      setPlanetsList(filteredPlanets);
+    }
+    if (comparison === 'igual A') {
+      const filteredPlanets = planetsList.filter((filter) => +filter[column] === +value);
+      setPlanetsList(filteredPlanets);
+    }
+  };
+
   const planets = useMemo(
-    () => ({ planetsList, filterByName, handleChange }),
-    [planetsList, filterByName],
+    () => ({ planetsList,
+      filterByName,
+      handleChange,
+      filtersByNumber,
+      handleFilter,
+      clickFilter }),
+    [planetsList, filterByName, filtersByNumber],
   );
 
   return (
