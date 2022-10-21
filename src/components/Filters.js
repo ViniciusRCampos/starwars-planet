@@ -11,6 +11,7 @@ export default function Filters() {
           <button
             type="button"
             name={ key }
+            value={ column }
             onClick={ removeFilter }
           >
             remove

@@ -11,7 +11,7 @@ export function StarWarsProvider({ children }) {
     'diameter',
     'rotation_period',
     'surface_water'];
-
+  const [APIData, setAPIData] = useState([]);
   const [planetsList, setPlanetsList] = useState([]);
   const [filterByName, setfilterByName] = useState('');
   const [columnOptions, setColumnOptions] = useState(INITIAL_OPTIONS);
@@ -29,45 +29,43 @@ export function StarWarsProvider({ children }) {
     setfiltersByNumber((oldState) => ({ ...oldState, [name]: value }));
   };
 
-  const newColumns = () => {
-    activeFilters.forEach((element) => setColumnOptions(columnOptions.filter(
-      (item) => item !== element.column,
-    )));
-  };
-
   useEffect(() => {
     const starWarsAPI = async () => {
       const url = 'https://swapi.dev/api/planets';
       const response = await fetch(url);
       const { results } = await response.json();
       const data = results.filter((planet) => delete planet.residents);
+      setAPIData(data);
       setPlanetsList(data);
     };
     starWarsAPI();
   }, []);
 
   const filtering = () => {
-    const { comparison, column, value } = filtersByNumber;
-    if (comparison === 'maior que') {
-      const filteredPlanets = planetsList.filter((filter) => +filter[column] > +value);
-      setPlanetsList(filteredPlanets);
-    }
-    if (comparison === 'menor que') {
-      const filteredPlanets = planetsList.filter((filter) => +filter[column] < +value);
-      setPlanetsList(filteredPlanets);
-    }
-    if (comparison === 'igual a') {
-      const filteredPlanets = planetsList.filter(
-        (filter) => +filter[column] === +value,
-      );
-      setPlanetsList(filteredPlanets);
-    }
+    activeFilters.forEach((filter) => {
+      if (filter.comparison === 'maior que') {
+        const filterValue = planetsList.filter(
+          (element) => Number(element[filter.column]) > Number(filter.value),
+        );
+        setPlanetsList(filterValue);
+      }
+      if (filter.comparison === 'menor que') {
+        const filterValue = planetsList.filter(
+          (element) => Number(element[filter.column]) < Number(filter.value),
+        );
+        setPlanetsList(filterValue);
+      }
+      if (filter.comparison === 'igual a') {
+        const filterValue = planetsList.filter(
+          (element) => Number(element[filter.column]) === Number(filter.value),
+        );
+        setPlanetsList(filterValue);
+      }
+    });
   };
 
   useEffect(() => {
-    starWarsAPI();
     filtering();
-    newColumns();
     setfiltersByNumber((oldState) => ({ ...oldState, column: columnOptions[0] }));
   }, [activeFilters]);
 
@@ -78,21 +76,36 @@ export function StarWarsProvider({ children }) {
 
   const clickFilter = () => {
     setActiveFilters([...activeFilters, filtersByNumber]);
+    const newOption = columnOptions.filter((column) => column !== filtersByNumber.column);
+    setColumnOptions(newOption);
   };
 
+  //   const removeFilter = ({ target }) => {
+  //     const { name: index } = target;
+  //     activeFilters.splice(index, 1);
+  //     activeFilters.forEach((element) => setColumnOptions(columnOptions.filter(
+  //       (item) => item !== element.column,
+  //     )));
+  //     setColumnOptions(INITIAL_OPTIONS);
+  //   };
+
   const removeFilter = ({ target }) => {
-    const { name: index } = target;
-    activeFilters.splice(index, 1);
-    setColumnOptions(INITIAL_OPTIONS);
+    const { value } = target;
+    setColumnOptions([...columnOptions, value]);
+    setPlanetsList(APIData);
+    const deleteFilter = activeFilters.filter((element) => element.column !== value);
+    setActiveFilters(deleteFilter);
   };
 
   const clearFilter = () => {
     setActiveFilters([]);
     setColumnOptions(INITIAL_OPTIONS);
+    setPlanetsList(APIData);
   };
 
   const planets = useMemo(
     () => ({ planetsList,
+      APIData,
       filterByName,
       filtersByNumber,
       activeFilters,
@@ -102,7 +115,8 @@ export function StarWarsProvider({ children }) {
       clickFilter,
       removeFilter,
       clearFilter }),
-    [planetsList, filterByName, filtersByNumber, activeFilters, columnOptions],
+    [planetsList, filterByName, filtersByNumber,
+      APIData, activeFilters, columnOptions],
   );
 
   return (
