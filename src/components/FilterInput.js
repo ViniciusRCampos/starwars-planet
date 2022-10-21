@@ -39,6 +39,7 @@ export default function FilterInput() {
         data-testid="value-filter"
         value={ value }
         onChange={ handleFilter }
+        placeholder="Value"
       />
 
       <button type="button" data-testid="button-filter" onClick={ clickFilter }>
