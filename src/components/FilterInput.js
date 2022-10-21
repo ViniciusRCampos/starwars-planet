@@ -1,9 +1,9 @@
 import React, { useContext } from 'react';
 import { planetsContext } from '../context/StarWarsProvider';
 
-export default function Filter() {
+export default function FilterInput() {
   const { filtersByNumber, handleFilter,
-    clickFilter, columnOptions } = useContext(planetsContext);
+    clickFilter, columnOptions, clearFilter } = useContext(planetsContext);
   const { column, comparison, value } = filtersByNumber;
 
   return (
@@ -43,6 +43,15 @@ export default function Filter() {
 
       <button type="button" data-testid="button-filter" onClick={ clickFilter }>
         Adicionar Filtro
+      </button>
+
+      <button
+        data-testid="button-remove-filters"
+        type="button"
+        onClick={ clearFilter }
+      >
+        Limpar Filtros
+
       </button>
     </form>
   );

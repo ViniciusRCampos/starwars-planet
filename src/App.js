@@ -1,6 +1,7 @@
 import React from 'react';
 import './App.css';
-import Filter from './components/Filter';
+import FilterInput from './components/FilterInput';
+import Filters from './components/Filters';
 import Header from './components/Header';
 import Table from './components/Table';
 import { StarWarsProvider } from './context/StarWarsProvider';
@@ -10,7 +11,8 @@ function App() {
     <div>
       <StarWarsProvider>
         <Header />
-        <Filter />
+        <FilterInput />
+        <Filters />
         <Table />
       </StarWarsProvider>
     </div>

@@ -6,13 +6,15 @@ const defaultValue = [];
 export const planetsContext = createContext(defaultValue);
 
 export function StarWarsProvider({ children }) {
-  const [planetsList, setPlanetsList] = useState([]);
-  const [filterByName, setfilterByName] = useState('');
-  const [columnOptions, setColumnOptions] = useState(['population',
+  const INITIAL_OPTIONS = ['population',
     'orbital_period',
     'diameter',
     'rotation_period',
-    'surface_water']);
+    'surface_water'];
+
+  const [planetsList, setPlanetsList] = useState([]);
+  const [filterByName, setfilterByName] = useState('');
+  const [columnOptions, setColumnOptions] = useState(INITIAL_OPTIONS);
 
   const INITIAL_FILTER = {
     column: columnOptions[0],
@@ -33,13 +35,6 @@ export function StarWarsProvider({ children }) {
     )));
   };
 
-  const newColumnsa = (element) => {
-    console.log('colunas', columnOptions);
-    const colunas = columnOptions.splice(columnOptions.indexOf(element), 0);
-    console.log('AAAA', colunas);
-    setColumnOptions(colunas);
-  };
-
   useEffect(() => {
     const starWarsAPI = async () => {
       const url = 'https://swapi.dev/api/planets';
@@ -49,7 +44,6 @@ export function StarWarsProvider({ children }) {
       setPlanetsList(data);
     };
     starWarsAPI();
-    console.log(columnOptions);
   }, []);
 
   const filtering = () => {
@@ -71,8 +65,10 @@ export function StarWarsProvider({ children }) {
   };
 
   useEffect(() => {
+    starWarsAPI();
     filtering();
     newColumns();
+    setfiltersByNumber((oldState) => ({ ...oldState, column: columnOptions[0] }));
   }, [activeFilters]);
 
   const handleChange = ({ target }) => {
@@ -84,15 +80,28 @@ export function StarWarsProvider({ children }) {
     setActiveFilters([...activeFilters, filtersByNumber]);
   };
 
+  const removeFilter = ({ target }) => {
+    const { name: index } = target;
+    activeFilters.splice(index, 1);
+    setColumnOptions(INITIAL_OPTIONS);
+  };
+
+  const clearFilter = () => {
+    setActiveFilters([]);
+    setColumnOptions(INITIAL_OPTIONS);
+  };
+
   const planets = useMemo(
     () => ({ planetsList,
       filterByName,
-      handleChange,
       filtersByNumber,
+      activeFilters,
+      columnOptions,
+      handleChange,
       handleFilter,
       clickFilter,
-      activeFilters,
-      columnOptions }),
+      removeFilter,
+      clearFilter }),
     [planetsList, filterByName, filtersByNumber, activeFilters, columnOptions],
   );
 
