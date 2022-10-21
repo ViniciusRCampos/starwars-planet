@@ -80,15 +80,6 @@ export function StarWarsProvider({ children }) {
     setColumnOptions(newOption);
   };
 
-  //   const removeFilter = ({ target }) => {
-  //     const { name: index } = target;
-  //     activeFilters.splice(index, 1);
-  //     activeFilters.forEach((element) => setColumnOptions(columnOptions.filter(
-  //       (item) => item !== element.column,
-  //     )));
-  //     setColumnOptions(INITIAL_OPTIONS);
-  //   };
-
   const removeFilter = ({ target }) => {
     const { value } = target;
     setColumnOptions([...columnOptions, value]);
