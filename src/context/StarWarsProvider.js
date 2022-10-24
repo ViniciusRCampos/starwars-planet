@@ -6,11 +6,13 @@ const defaultValue = [];
 export const planetsContext = createContext(defaultValue);
 
 export function StarWarsProvider({ children }) {
-  const INITIAL_OPTIONS = ['population',
+  const INITIAL_OPTIONS = [
+    'population',
     'orbital_period',
     'diameter',
     'rotation_period',
-    'surface_water'];
+    'surface_water',
+  ];
   const [APIData, setAPIData] = useState([]);
   const [planetsList, setPlanetsList] = useState([]);
   const [filterByName, setfilterByName] = useState('');
@@ -23,10 +25,21 @@ export function StarWarsProvider({ children }) {
   };
   const [filtersByNumber, setfiltersByNumber] = useState(INITIAL_FILTER);
   const [activeFilters, setActiveFilters] = useState([]);
+  // const [sortOptions, setSortOptions] = useState(INITIAL_OPTIONS);
+  const INITIAL_SORT = {
+    sortColumn: 'population',
+    order: 'ASC',
+  };
+  const [sorted, setSorted] = useState(INITIAL_SORT);
 
   const handleFilter = ({ target }) => {
     const { name, value } = target;
     setfiltersByNumber((oldState) => ({ ...oldState, [name]: value }));
+  };
+
+  const handleSort = ({ target }) => {
+    const { name, value } = target;
+    setSorted((oldState) => ({ ...oldState, [name]: value }));
   };
 
   useEffect(() => {
@@ -66,7 +79,10 @@ export function StarWarsProvider({ children }) {
 
   useEffect(() => {
     filtering();
-    setfiltersByNumber((oldState) => ({ ...oldState, column: columnOptions[0] }));
+    setfiltersByNumber((oldState) => ({
+      ...oldState,
+      column: columnOptions[0],
+    }));
   }, [activeFilters]);
 
   const handleChange = ({ target }) => {
@@ -76,7 +92,9 @@ export function StarWarsProvider({ children }) {
 
   const clickFilter = () => {
     setActiveFilters([...activeFilters, filtersByNumber]);
-    const newOption = columnOptions.filter((column) => column !== filtersByNumber.column);
+    const newOption = columnOptions.filter(
+      (column) => column !== filtersByNumber.column,
+    );
     setColumnOptions(newOption);
   };
 
@@ -84,7 +102,9 @@ export function StarWarsProvider({ children }) {
     const { value } = target;
     setColumnOptions([...columnOptions, value]);
     setPlanetsList(APIData);
-    const deleteFilter = activeFilters.filter((element) => element.column !== value);
+    const deleteFilter = activeFilters.filter(
+      (element) => element.column !== value,
+    );
     setActiveFilters(deleteFilter);
   };
 
@@ -94,20 +114,52 @@ export function StarWarsProvider({ children }) {
     setPlanetsList(APIData);
   };
 
+  const sortClick = () => {
+    const { sortColumn, order } = sorted;
+    const unknowList = planetsList.filter((row) => row[sortColumn] === 'unknown');
+    const knowList = planetsList.filter((row) => row[sortColumn] !== 'unknown');
+    if (order === 'ASC') {
+      const sortedArray = knowList.sort(
+        (a, b) => a[sortColumn] - b[sortColumn],
+      );
+      setPlanetsList([...sortedArray, ...unknowList]);
+    }
+    if (order === 'DESC') {
+      const sortedArray = knowList.sort(
+        (a, b) => b[sortColumn] - a[sortColumn],
+      );
+      setPlanetsList([...sortedArray, ...unknowList]);
+    }
+  };
+
   const planets = useMemo(
-    () => ({ planetsList,
+    () => ({
+      planetsList,
       APIData,
       filterByName,
       filtersByNumber,
       activeFilters,
       columnOptions,
+      // sortOptions,
+      sorted,
+      handleSort,
       handleChange,
       handleFilter,
       clickFilter,
       removeFilter,
-      clearFilter }),
-    [planetsList, filterByName, filtersByNumber,
-      APIData, activeFilters, columnOptions],
+      clearFilter,
+      sortClick,
+    }),
+    [
+      planetsList,
+      filterByName,
+      filtersByNumber,
+      APIData,
+      activeFilters,
+      columnOptions,
+      sorted,
+      // sortOptions,
+    ],
   );
 
   return (
