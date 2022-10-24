@@ -9,7 +9,7 @@ import { StarWarsProvider } from './context/StarWarsProvider';
 
 function App() {
   return (
-    <div>
+    <section>
       <StarWarsProvider>
         <Header />
         <FilterInput />
@@ -17,7 +17,7 @@ function App() {
         <Filters />
         <Table />
       </StarWarsProvider>
-    </div>
+    </section>
   );
 }
 
